@@ -1,0 +1,67 @@
+// mmwd.cpp : Defines the entry point for the console application.
+//
+using namespace std;
+
+
+#include <iostream>
+#include "Header.h"
+
+
+int main(int argc, char* argv[])
+{
+	ifstream plik;
+	//wczytanie macierzy zaludnienia i czynszów
+	int budzet = 7000;
+	macierz<int>konkurencja_macierz(10, 10);
+	vector<sklep *> konkurencja_wektor;
+	vector<sklep *> nasze_sklepy;
+	wczytaj_skl_konkurencj(konkurencja_wektor);//wczytanie sklepow konkurencji do wektora
+	k_macierz(konkurencja_wektor, konkurencja_macierz, 10, 10);//naniesienie sklepow konkurencji na mape
+	cout << konkurencja_macierz;
+	macierz<int>czynsz(10, 10);
+	macierz<int>zaludnienie(10, 10);
+	otworz_plik("cz.txt", plik);
+	wczytaj_macierz<int>(czynsz, 10,10, plik);
+	otworz_plik("z.txt", plik);
+	wczytaj_macierz<int>(zaludnienie, 10, 10, plik);
+	cout << "czynsz\n" << czynsz << "\n";
+	cout << "zaludnienie\n" << zaludnienie << "\n";
+	//wywolywanie sasiedztwa1 tak dlugo az dwa rzy pod rzad ono nie zadziala
+	int sas1 = 3;
+	while (sas1)
+	{
+		bool wynik=sasiedztwo1(5, 10, 10, 1, &budzet, czynsz, konkurencja_macierz, zaludnienie, konkurencja_wektor, nasze_sklepy);
+		if (wynik == true)
+			sas1 = 3;
+		else sas1--;
+	}
+	
+	cout << "wektor naszych sklepow \n";
+	for (vector<sklep*>::const_iterator i = nasze_sklepy.begin(); i != nasze_sklepy.end(); ++i)
+		cout << (**i) << "\n";
+	cout << "macierz wszystkich sklepow\n";
+	cout << konkurencja_macierz;
+
+
+	/*ifstream plik;
+	otworz_plik("plik.txt", plik);
+
+	int rozx, rozy;
+	plik >> rozx >> rozy;
+	cout << rozx << " " << rozy << "\n";
+	macierz<int> zaludnienie(rozx, rozy);
+	wczytaj_macierz<int>(zaludnienie, rozx, rozy, plik);
+	
+	macierz<int> czynsz(rozx, rozy);
+	wczytaj_macierz<int>(czynsz, rozx, rozy, plik);
+	plik.close();
+	cout << "to macierz zaludnienia\n";
+	cout << (zaludnienie);
+	
+	cout << "to macierz oplat za czynsz\n";
+	cout << (czynsz);
+	cout << "to ja\n";*/
+	system("PAUSE");
+	return 0;
+}
+

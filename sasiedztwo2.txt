@@ -1,0 +1,130 @@
+#include "Header.h"
+
+using namespace std;
+
+double przelicznik2[10] = { 0.91, 0.819, 0.728, 0.637, 0.546, 0.455, 0.364, 0.273, 0.182, 0.091 };
+
+void znajdz_najg_sklep(vector<sklep *> &wns, int *x, int *y,int *nr)
+{
+	double najmn_zysk = (*(wns[0])).zysk();
+	*x = (*(wns[0])).wspx();
+	*y= (*(wns[0])).wspy();
+	*nr = 0;
+	double zysk;
+	for (int i = 1; i < wns.size(); i++)
+	{
+		zysk = (*(wns[i])).zysk();
+		//cout << "zysk w sas2 "<<zysk << "\n";
+		if (zysk < najmn_zysk)
+		{
+			najmn_zysk = zysk;
+			*x = (*(wns[i])).wspx();
+			*y = (*(wns[i])).wspy();
+			*nr = i;
+		}
+	}
+
+}
+int max(int a, int b)
+{
+	if (a > b)return a;
+	else return b;
+}
+void przydziel_nowy_sklep(int x, int y, int nr, int zasieg, int rozx, int rozy, macierz<int> &k, macierz<int> &zaludnienie, vector<sklep *> &wk, vector<sklep *> &wns)
+{
+
+
+
+	double ws, ws_naj=0;
+	int x_s=-1, y_s=-1,nr_s;
+	int xn, yn;//wsp innego naszego sklepu
+	int kat;//kategoria innego naszego sklepu
+	for (int i = 0; i < wns.size(); i++)
+	{
+		if (i != nr)
+		{
+			xn = (*(wns[i])).wspx();
+			yn = (*(wns[i])).wspy();//wspolrzedne sklepu nr i
+			kat = (*(wns[i])).rodz();
+			if (max(abs(x - xn), abs(y - yn)) <= zasieg)
+			{
+				double b = (xn - x)*(xn - x) + (yn - y)*(yn - y);
+				double odl = sqrt(b) + 1;//odleglosc od punktu i,j do naszej lokalizacji
+				ws = (double)kat / odl;
+				if (ws > ws_naj)
+				{
+					ws_naj = ws;
+					x_s = xn;
+					y_s = yn;
+					nr_s = i;
+				}
+			}
+
+		}
+	}
+	//pzeszukanie sklepow konkurencji
+	double wsk, wsk_naj = 0;
+	int xk_s = -1, yk_s = -1, nrk_s;
+	int xkn, ykn;//wsp innego naszego sklepu
+	int katk;//kategoria innego naszego sklepu
+	for (int i = 0; i < wk.size(); i++)
+	{
+		
+		
+			xkn = (*(wk[i])).wspx();
+			ykn = (*(wk[i])).wspy();
+			katk = (*(wk[i])).rodz();
+			if (max(abs(x - xkn), abs(y - ykn)) <= (*(wk[i])).zas())
+			{
+				double b = (xkn - x)*(xkn - x) + (ykn - y)*(ykn - y);
+				double odl = sqrt(b) + 1;//odleglosc od punktu i,j do naszej lokalizacji
+				wsk = (double)katk / odl;
+				if (wsk > wsk_naj)
+				{
+					wsk_naj = wsk;
+					xk_s = xkn;
+					yk_s = ykn;
+					nrk_s = i;
+				}
+			}
+
+		
+	}
+
+	if ((ws_naj >= wsk_naj) && x_s != -1)
+	{
+		k(x, y) = -(nr_s+1);
+		(*(wns[nr_s])).zysk() += 400 * zaludnienie(x, y)*przelicznik2[(*(wns[nr_s])).rodz() - 1];
+
+	}
+	else if ((ws_naj < wsk_naj) && xk_s != -1)
+	{
+		k(x, y) = nrk_s + 1;
+	}
+	else
+		k(x, y) = 0;
+}
+
+void sasiedztwo2(int rozx, int rozy, int zasieg, int *budzet, macierz<int> &czynsz, macierz<int> &k, macierz<int> &zaludnienie, vector<sklep *> &wk, vector<sklep *> &wns)
+{
+	int x, y; //wsp najgorszego sklepu
+	int nr; //numer najgorszego sklepu 
+	//znalezienie najgorszego sklepu
+	znajdz_najg_sklep(wns, &x, &y,&nr);
+	cout << "najgorszy sklep ma numer "<<nr+1 << "\n";
+
+	//przydziel_nowy_sklep(x, y, nr, zasieg, rozx, rozy, k, zaludnienie, wk, wns);
+	int xmin, xmax, ymin, ymax;
+	przeskaluj_obszar(x, y, zasieg, rozx, rozy, &xmin, &xmax, &ymin, &ymax);
+	//wszystkie kratki ktore byly pod dzialaniem najgorszego sklepu musza byc przydzielone do innych sklepow naszych lub konkurencji
+	for (int i = xmin; i < xmax; i++)
+	{
+		for (int j = ymin; j < ymax; j++)
+		{
+			if (k(i, j) == -(nr+1))
+			{
+				przydziel_nowy_sklep(i, j, nr, zasieg, rozx, rozy, k, zaludnienie, wk, wns);
+			}
+		}
+	}
+}
