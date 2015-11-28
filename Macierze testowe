@@ -1,0 +1,438 @@
+#include <iostream>
+#include <cstdlib> // system "pause"
+#include <cmath> // % - modulo
+#include <ctime> // f-cja rand
+#include <fstream> // obsluga pliku
+#include <windows.h> //szpanerski kolorek czcionki...
+int **tab_zero(int p);
+int **tab_plos(int k);
+void tab_center(int r);
+int **tab_C(int r);
+int **tab_K(int r);
+using namespace std;
+int main()
+{
+HANDLE wyjscie;
+wyjscie=GetStdHandle(STD_OUTPUT_HANDLE);
+SetConsoleTextAttribute(wyjscie,2);
+cout<<"Program generuje macierze testowe dla algorytmu Taboo Search"<<endl;
+cout<<"Podaj wymiar macierzy (n x n)"<<endl;
+int size;
+cin>>size;
+cout<<endl;
+//alokacja pamieci
+int **tab=new int *[size];
+for(int i=0 ; i<size ; i++)
+    {
+    tab[i]=new int [size];
+    }
+int **tab2=new int *[size];
+for(int i=0 ; i<size ; i++)
+    {
+    tab2[i]=new int [size];
+    }
+//obsluga pliku
+ofstream plik;
+ofstream plik2;
+plik.open("aglo.txt");
+if(!plik.is_open())
+    {
+    cerr<<"Nie mozna otworzyc pliku ";
+    exit(EXIT_FAILURE);
+    }
+plik2.open("konu.txt");
+if(!plik2.is_open())
+    {
+    cerr<<"Nie mozna otworzyc pliku ";
+    exit(EXIT_FAILURE);
+    }
+
+//utworzenie macierzy testowych
+
+tab=tab_C(size);
+tab2=tab_K(size);
+//tab=tab_zero(size);
+//tab=tab_plos(size);
+
+//zapisanie do pliku
+for (int i=0 ; i<size ; i++,plik<<endl)
+    {
+    for(int j=0 ; j<size ; j++)
+        {
+        plik<<tab[i][j]<<"\t";
+        }
+    }
+
+
+for (int i=0 ; i<size ; i++,plik2<<endl)
+    {
+    for(int j=0 ; j<size ; j++)
+        {
+        plik2<<tab2[i][j]<<"\t";
+        }
+    }
+
+//zamkniecie pliku
+plik.close();
+plik2.close();
+
+//dealokacja pamieci
+for(int i=0 ; i<size ; i++)
+    {
+    delete [] tab[i];
+    }
+delete [] tab;
+
+for(int i=0 ; i<size ; i++)
+    {
+    delete [] tab2[i];
+    }
+delete [] tab2;
+
+
+system("PAUSE");
+return 0;
+}
+int **tab_zero(int p)
+{
+    int **tab0=new int *[p];
+    for(int i=0 ; i<p ; i++)
+        {
+        tab0[i]=new int [p];
+        }
+    for (int i=0 ; i<p ; i++)
+        {
+        for(int j=0 ; j<p ; j++)
+            {
+            tab0[i][j]=0;
+            }
+    }
+
+    for (int i=0 ; i<p ; i++,cout<<endl)
+    {
+    for(int j=0 ; j<p ; j++)
+        {
+        cout<<tab0[i][j]<<"\t";
+        }
+    }
+    return tab0;
+}
+int **tab_plos(int k)
+{
+//generacja liczb pseudolosowych
+int **rtab=new int *[k];
+for(int i=0; i<k ; i++)
+    {
+    rtab[i]=new int [k];
+    }
+srand(time(0));
+for (int i = 0; i < k; ++i)
+	{
+    for (int j = 0; j < k; ++j)
+        {
+        rtab[i][j] = rand() % 10; // liczby z zakresu 0 - 9
+        }
+	}
+
+for (int i=0 ; i<k ; i++,cout<<endl)
+    {
+    for(int j=0 ; j<k ; j++)
+        {
+        cout<<rtab[i][j]<<"\t";
+        }
+    }
+    return rtab;
+}
+void tab_center(int r)
+{
+    cout<<"Generuje macierz o rozmiarze "<<r<<","<<endl<<"ktorej komorki odpowiadaja gestosci zaludnienia"<<endl;
+    cout<<"w miescie o topologii typowej aglomeracji"<<endl<<"(tj. z jednym dominujacym centrum)"<<endl<<endl;
+    int **tab=new int *[r];
+    for(int i=0 ; i<r ; i++)
+        {
+        tab[i]=new int [r];
+        }
+//SUBURBIA
+    srand(time(0));
+    for (int i = 0; i < 2 ; ++i)
+        {
+        for (int j = 0; j < r; ++j)
+            {
+            tab[i][j] = rand() % 5+1; // liczby z zakresu 1 - 5
+            }
+        }
+
+for (int i = r-2; i < r ; ++i)
+        {
+        for (int j = 0; j < r; ++j)
+            {
+            tab[i][j] = rand() % 5+1; // liczby z zakresu 1 - 5
+            }
+        }
+
+for (int i = 2; i < r-2 ; ++i)
+        {
+        for (int j = 0; j < 2; ++j)
+            {
+            tab[i][j] = rand() % 5+1; // liczby z zakresu 1 - 5
+            }
+        }
+
+for (int i = 2; i < r-2 ; ++i)
+        {
+        for (int j = r-2; j < r; ++j)
+            {
+            tab[i][j] = rand() % 5+1; // liczby z zakresu 1 - 5
+            }
+        }
+//CENTRUM
+for (int i = 2; i < r-2 ; ++i)
+        {
+        for (int j = 2; j < r-2; ++j)
+            {
+            tab[i][j] = rand() % 2+8; // liczby z zakresu 8 - 9, centrum
+            }
+        }
+
+//WYPISANIE MACIERZY
+
+for (int i=0 ; i<r ; i++,cout<<endl)
+    {
+    for(int j=0 ; j<r ; j++)
+        {
+        cout<<tab[i][j]<<"\t";
+        }
+    }
+
+}
+int **tab_C(int r)
+{
+    cout<<"Generuje macierz o rozmiarze "<<r<<","<<endl<<"ktorej komorki odpowiadaja gestosci zaludnienia"<<endl;
+    cout<<"w miescie o topologii typowej aglomeracji"<<endl<<"(tj. z jednym dominujacym centrum)"<<endl<<endl;
+    int **tabC=new int *[r];
+    for(int i=0 ; i<r ; i++)
+        {
+        tabC[i]=new int [r];
+        }
+//SUBURBIA
+    srand(time(0));
+    for (int i = 0; i < 2 ; ++i)
+        {
+        for (int j = 0; j < r; ++j)
+            {
+            tabC[i][j] = rand() % 5+1; // liczby z zakresu 1 - 5
+            }
+        }
+
+for (int i = r-2; i < r ; ++i)
+        {
+        for (int j = 0; j < r; ++j)
+            {
+            tabC[i][j] = rand() % 5+1; // liczby z zakresu 1 - 5
+            }
+        }
+
+for (int i = 2; i < r-2 ; ++i)
+        {
+        for (int j = 0; j < 2; ++j)
+            {
+            tabC[i][j] = rand() % 5+1; // liczby z zakresu 1 - 5
+            }
+        }
+
+for (int i = 2; i < r-2 ; ++i)
+        {
+        for (int j = r-2; j < r; ++j)
+            {
+            tabC[i][j] = rand() % 5+1; // liczby z zakresu 1 - 5
+            }
+        }
+//CENTRUM
+for (int i = 2; i < r-2 ; ++i)
+        {
+        for (int j = 2; j < r-2; ++j)
+            {
+            tabC[i][j] = rand() % 2+8; // liczby z zakresu 8 - 9, centrum
+            }
+        }
+
+//WYPISANIE MACIERZY
+
+for (int i=0 ; i<r ; i++,cout<<endl)
+    {
+    for(int j=0 ; j<r ; j++)
+        {
+        cout<<tabC[i][j]<<"\t";
+        }
+    }
+return tabC; //pierwszy element tabC
+}
+int **tab_K(int r)
+{
+    cout<<endl<<"Generuje macierz o rozmiarze "<<r<<","<<endl<<"ktorej komorki odpowiadaja gestosci zaludnienia"<<endl;
+    cout<<"w miescie o topologii typowej konurbacji"<<endl<<"(tj. z wieloma rownorzednymi centrami)"<<endl<<endl;
+
+    int **tabK=new int *[r];
+    for(int i=0 ; i<r ; i++)
+        {
+        tabK[i]=new int [r];
+        }
+        int t;
+        int wybor;
+        cout<<"Podaj liczbe centrow dla tworzonej konurbacji: "<<endl;
+        cin>>t;
+        int x[t];
+        int y[t];
+        cout<<"Jak utworzyc wpolrzedne centrow?"<<endl;
+        cout<<"1 - podaj wspolrzedne"<<endl;
+        cout<<"2 - wygeneruj wspolrzedne pseudolosowo"<<endl;
+        cin>>wybor;
+        while(wybor!=1 && wybor!=2)
+        {   cout<<"\t"<<"Niepoprawny wybor opcji."<<"\t"<<endl;
+            cin>>wybor;}
+        cout<<endl;
+            switch(wybor)
+                {
+                case 1:
+                    for(int i=0; i<t; i++)
+                    {
+                    cout<<"x"<<i+1<<"=";
+                    cin>>x[i];
+                    cout<<"y"<<i+1<<"=";
+                    cin>>y[i];
+                    }
+                    break;
+                case 2:
+                    for(int i=0; i<t; i++)
+                        {
+                        //Liczby beda z zakresu 0 - wymiar macierzy-1
+                        x[i]=rand()%r;
+                        y[i]=rand()%r;
+                        }
+                    break;
+                default:
+                    break;
+                }
+        srand(time(0));
+        for (int i = 0; i < r; ++i)
+        {
+            for (int j = 0; j < r; ++j)
+            {
+                tabK[i][j] = rand()%5+1;
+            }
+        }
+
+
+
+        for(int i=0; i<t; i++)
+            {
+                if(x[i]==0 && y[i]==0)
+                    {
+                     for(int m=0; m<2; m++)
+                        {
+                        for(int n=0; n<2; n++)
+                            {
+                            tabK[m][n]=8;
+                            }
+                        }
+                    }
+                else if(x[i]==0 && (y[i]!=0 && y[i]!=r-1))
+                    {
+                    for(int m=0; m<2; m++)
+                        {
+                        for(int n=y[i]-1; n<y[i]+2; n++)
+                            {
+                            tabK[m][n]=8;
+                            }
+                        }
+                    }
+                else if(x[i]==0 && y[i]==r-1)
+                    {
+                    for(int m=0; m<2; m++)
+                        {
+                        for(int n=y[i]-1; n<y[i]+1; n++)
+                            {
+                            tabK[m][n]=8;
+                            }
+                        }
+                    }
+                else if((x[i]!=0 && x[i]!=r-1)&& y[i]==0)
+                    {
+                    for(int m=x[i]-1; m<=x[i]+1; m++)
+                        {
+                        for(int n=0; n<2; n++)
+                            {
+                            tabK[m][n]=8;
+                            }
+                        }
+                    }
+                else if((x[i]!=0 && x[i]!=r-1)&& y[i]==r-1)
+                    {
+                    for(int m=x[i]-1; m<x[i]+2; m++)
+                        {
+                        for(int n=y[i]-1; n<y[i]+1; n++)
+                            {
+                            tabK[m][n]=8;
+                            }
+                        }
+                    }
+                else if(x[i]==r-1 && y[i]==0)
+                    {
+                    for(int m=x[i]-1; m<=x[i]; m++)
+                        {
+                        for(int n=0; n<2; n++)
+                            {
+                            tabK[m][n]=8;
+                            }
+                        }
+                    }
+                else if(x[i]==r-1 &&(y[i]!=0 && y[i]!=r-1))
+                    {
+                    for(int m=x[i]-1; m<=x[i]; m++)
+                        {
+                        for(int n=y[i]-1; n<=y[i]+1; n++)
+                            {
+                            tabK[m][n]=8;
+                            }
+                        }
+                    }
+                else if(x[i]==r-1 && y[i]==r-1)
+                    {
+                    for(int m=x[i]-1; m<=x[i]; m++)
+                        {
+                        for(int n=y[i]-1; n<y[i]+1; n++)
+                            {
+                            tabK[m][n]=8;
+                            }
+                        }
+                    }
+                else
+                    {
+                    for(int m=x[i]-1; m<x[i]+2; m++)
+                        {
+                        for(int n=y[i]-1; n<y[i]+2; n++)
+                            {
+                            tabK[m][n]=8;
+                            }
+                        }
+                    }
+            }
+
+
+        for (int i=0; i<t; i++)
+             {
+             tabK[x[i]][y[i]]=9;
+             }
+
+        for (int i=0 ; i<r ; i++,cout<<endl)
+            {
+            for(int j=0 ; j<r ; j++)
+                {
+                    cout<<tabK[i][j]<<"\t";
+                }
+            }
+
+        return tabK;
+
+}
+
